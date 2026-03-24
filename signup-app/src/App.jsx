@@ -108,6 +108,7 @@ function SignupApp({ onViewDashboard }) {
   const [showBot, setShowBot] = useState(false);
   const [hasDismissedBot, setHasDismissedBot] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
   const otpInputRef = useRef(null);
 
@@ -189,6 +190,41 @@ function SignupApp({ onViewDashboard }) {
       } else {
           alert("Sorry, your browser doesn't support voice synthesis.");
       }
+  };
+
+  const startVoiceFill = () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+          alert("Speech recognition is not supported in this browser.");
+          return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      const promptText = step === 1 ? "Please say your email address." : "Please say your password.";
+      
+      // First, let the bot speak the prompt
+      const utterance = new SpeechSynthesisUtterance(promptText);
+      utterance.onend = () => {
+          setIsListening(true);
+          recognition.start();
+      };
+      window.speechSynthesis.speak(utterance);
+
+      recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
+          if (step === 1) setEmail(transcript);
+          if (step === 2) setPassword(transcript);
+          setIsListening(false);
+          trackStep('voice_input_captured', email);
+          
+          const confirmText = `I heard ${transcript}. Is that correct?`;
+          window.speechSynthesis.speak(new SpeechSynthesisUtterance(confirmText));
+      };
+
+      recognition.onerror = () => setIsListening(false);
   };
 
   const handleSSOLogin = async (provider) => {
@@ -316,10 +352,15 @@ function SignupApp({ onViewDashboard }) {
               <p>{getHelpContent()}</p>
               <div className="bot-actions" style={{ flexDirection: 'column' }}>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                  <button className="btn-sm" style={{ flex: 1, backgroundColor: isListening ? '#d73a49' : '#372476' }} onClick={startVoiceFill}>
+                    {isListening ? '🎤 Listening...' : '🎙️ Voice Fill Form'}
+                  </button>
                   <button className="btn-sm" style={{ flex: 1 }} onClick={speakHelp}>
                     {isSpeaking ? '🔊 Speaking...' : '🔈 Read Aloud'}
                   </button>
-                  <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                   <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
                 </div>
                 <button className="btn-sm btn-text" style={{ fontSize: 11, padding: 0 }} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>
                   Request human agent
