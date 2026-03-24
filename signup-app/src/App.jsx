@@ -156,10 +156,24 @@ function SignupApp({ onViewDashboard }) {
     if (showBot) setShowBot(false);
   };
 
+  const triggerHelp = () => {
+      setShowBot(true);
+      trackStep('help_requested', email);
+  };
+
   const dismissBot = () => {
     setShowBot(false);
     setHasDismissedBot(true);
     trackStep('bot_dismissed', email);
+  };
+
+  const getHelpContent = () => {
+      switch(step) {
+          case 1: return "Having trouble with your email? Make sure it follows the standard format (e.g., name@domain.com).";
+          case 2: return "Passwords need to be secure. We recommend at least 8 characters with a mix of letters and symbols.";
+          case 3: return "OTP delayed? It usually arrives within 60 seconds. Make sure to check your 'Promotions' or 'Spam' folders!";
+          default: return "How can I help you today?";
+      }
   };
 
   const handleSSOLogin = async (provider) => {
@@ -266,24 +280,35 @@ function SignupApp({ onViewDashboard }) {
 
       <h2>Create your account</h2>
 
-      {step === 1 && (
-        <div className="form-step fade-in">
-          {showBot && (
-            <div className="bot-widget fade-in">
-              <div className="bot-header">
-                <span className="bot-icon">🤖</span>
-                <strong>AI Assistant</strong>
-                <button className="close-bot" onClick={dismissBot}>×</button>
-              </div>
-              <div className="bot-body">
-                <p>Need help completing signup?</p>
-                <div className="bot-actions">
-                  <button className="btn-sm" onClick={() => { alert("Help is on the way!"); dismissBot(); }}>Yes, please</button>
-                  <button className="btn-sm btn-outline" onClick={dismissBot}>I'm okay</button>
-                </div>
+      {/* Persistent Help Trigger */}
+      {step < 4 && !showBot && (
+        <button className="help-trigger-btn fade-in" onClick={triggerHelp} title="Need help?">
+          <span>❓</span>
+        </button>
+      )}
+
+      {/* AI Chatbot Intervention */}
+      {showBot && (
+        <div className="bot-overlay fade-in">
+          <div className="bot-bubble">
+            <div className="bot-header">
+              <span className="bot-icon">🤖</span>
+              <strong>AI Assistant</strong>
+              <button className="close-bot" onClick={dismissBot}>×</button>
+            </div>
+            <div className="bot-body">
+              <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
+              <p>{getHelpContent()}</p>
+              <div className="bot-actions">
+                <button className="btn-sm" onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>Request human agent</button>
+                <button className="btn-sm btn-outline" onClick={dismissBot}>Got it</button>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      )}
+      {step === 1 && (
+        <div className="form-step fade-in">
           <div className="social-logins">
             <button className="btn-social google" onClick={() => handleSSOLogin('Google')} disabled={isLoading}>
                 Continue with Google

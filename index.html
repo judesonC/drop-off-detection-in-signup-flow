@@ -363,6 +363,31 @@
             opacity: 0.8;
         }
 
+        .help-trigger-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #372476;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .help-trigger-btn:hover {
+            transform: scale(1.1);
+            background-color: #4c35a3;
+        }
+
         /* Dashboard Styles */
         .dashboard-container {
             background-color: rgba(22, 27, 34, 0.5);
@@ -739,10 +764,24 @@
                 if (showBot) setShowBot(false);
             };
 
+            const triggerHelp = () => {
+                setShowBot(true);
+                trackStep('help_requested', email);
+            };
+
             const dismissBot = () => {
                 setShowBot(false);
                 setHasDismissedBot(true);
                 trackStep('bot_dismissed', email);
+            };
+
+            const getHelpContent = () => {
+                switch(step) {
+                    case 1: return "Having trouble with your email? Make sure it follows the standard format (e.g., name@domain.com).";
+                    case 2: return "Passwords need to be secure. We recommend at least 8 characters with a mix of letters and symbols.";
+                    case 3: return "OTP delayed? It usually arrives within 60 seconds. Make sure to check your 'Promotions' or 'Spam' folders!";
+                    default: return "How can I help you today?";
+                }
             };
 
             const handleSSOLogin = async (provider) => {
@@ -975,7 +1014,12 @@
                         </div>
                         </div>
                     )}
-                    {step === 4 && <Dashboard onViewApp={() => { setStep(1); resetInactivity(); }} />}
+                    {/* Persistent Help Trigger */}
+                    {step < 4 && !showBot && (
+                        <button className="help-trigger-btn fade-in" onClick={triggerHelp} title="Need help?">
+                            <span>❓</span>
+                        </button>
+                    )}
 
                     {/* AI Chatbot Intervention */}
                     {showBot && (
@@ -987,10 +1031,11 @@
                                     <button className="close-bot" onClick={dismissBot}>×</button>
                                 </div>
                                 <div className="bot-body">
-                                    <p>Need help completing signup?</p>
+                                    <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
+                                    <p>{getHelpContent()}</p>
                                     <div className="bot-actions">
-                                        <button className="btn-sm" style={{backgroundColor: '#2ea043', border: 'none', color: '#fff'}} onClick={() => { alert("Help is on the way!"); dismissBot(); }}>Yes, please</button>
-                                        <button className="btn-sm btn-outline" onClick={dismissBot}>I'm okay</button>
+                                        <button className="btn-sm" style={{backgroundColor: '#2ea043', border: 'none', color: '#fff'}} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>Request human agent</button>
+                                        <button className="btn-sm btn-outline" onClick={dismissBot}>Got it</button>
                                     </div>
                                 </div>
                             </div>
