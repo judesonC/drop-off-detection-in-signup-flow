@@ -323,55 +323,18 @@ function SignupApp({ onViewDashboard }) {
   };
 
   return (
-    <div className="signup-container">
-      <div className="progress-bar" style={{ marginTop: 24 }}>
-        <div className="progress-fill" style={{ width: `${(step / 3) * 100}%` }}></div>
-      </div>
-      <p className="step-indicator">Step {step} of 3</p>
-
-      <h2>Create your account</h2>
-
-      {/* Persistent Help Trigger */}
-      {step < 4 && !showBot && (
-        <button className="help-trigger-btn fade-in" onClick={triggerHelp} title="Need help?">
-          <span>❓</span>
-        </button>
-      )}
-
-      {/* AI Chatbot Intervention */}
-      {showBot && (
-        <div className="bot-overlay fade-in">
-          <div className="bot-bubble">
-            <div className="bot-header">
-              <span className="bot-icon">🤖</span>
-              <strong>AI Assistant</strong>
-              <button className="close-bot" onClick={dismissBot}>×</button>
-            </div>
-            <div className="bot-body">
-              <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
-              <p>{getHelpContent()}</p>
-              <div className="bot-actions" style={{ flexDirection: 'column' }}>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
-                  <button className="btn-sm" style={{ flex: 1, backgroundColor: isListening ? '#d73a49' : '#372476' }} onClick={startVoiceFill}>
-                    {isListening ? '🎤 Listening...' : '🎙️ Voice Fill Form'}
-                  </button>
-                  <button className="btn-sm" style={{ flex: 1 }} onClick={speakHelp}>
-                    {isSpeaking ? '🔊 Speaking...' : '🔈 Read Aloud'}
-                  </button>
-                </div>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
-                   <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
-                </div>
-                <button className="btn-sm btn-text" style={{ fontSize: 11, padding: 0 }} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>
-                  Request human agent
-                </button>
-              </div>
-            </div>
-          </div>
+    <>
+      <div className="signup-container">
+        <div className="progress-bar" style={{ marginTop: 24 }}>
+          <div className="progress-fill" style={{ width: `${(step / 3) * 100}%` }}></div>
         </div>
-      )}
-      {step === 1 && (
-        <div className="form-step fade-in">
+        <p className="step-indicator">Step {step} of 3</p>
+
+        <h2>Create your account</h2>
+
+        {step === 1 && (
+          <div className="form-step fade-in">
+            {/* ... form content ... */}
           <div className="social-logins">
             <button className="btn-social google" onClick={() => handleSSOLogin('Google')} disabled={isLoading}>
                 Continue with Google
@@ -501,5 +464,45 @@ function SignupApp({ onViewDashboard }) {
         </div>
       )}
     </div>
+
+    {/* AI Chatbot Intervention (Moved outside container to fix 'fixed' positioning) */}
+    {step < 4 && !showBot && (
+        <button className="help-trigger-btn fade-in" onClick={triggerHelp} title="Need help?">
+          <span>❓</span>
+        </button>
+      )}
+
+      {showBot && (
+        <div className="bot-overlay fade-in">
+          <div className="bot-bubble">
+            <div className="bot-header">
+              <span className="bot-icon">🤖</span>
+              <strong>AI Assistant</strong>
+              <button className="close-bot" onClick={dismissBot}>×</button>
+            </div>
+            <div className="bot-body">
+              <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
+              <p>{getHelpContent()}</p>
+              <div className="bot-actions" style={{ flexDirection: 'column' }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                  <button className="btn-sm" style={{ flex: 1, backgroundColor: isListening ? '#d73a49' : '#372476' }} onClick={startVoiceFill}>
+                    {isListening ? '🎤 Listening...' : '🎙️ Voice Fill Form'}
+                  </button>
+                  <button className="btn-sm" style={{ flex: 1 }} onClick={speakHelp}>
+                    {isSpeaking ? '🔊 Speaking...' : '🔈 Read Aloud'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                   <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
+                </div>
+                <button className="btn-sm btn-text" style={{ fontSize: 11, padding: 0 }} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>
+                  Request human agent
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
