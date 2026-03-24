@@ -106,6 +106,7 @@ function SignupApp({ onViewDashboard }) {
   const [previewUrl, setPreviewUrl] = useState('');
   const [otpStalled, setOtpStalled] = useState(false);
   const [showBot, setShowBot] = useState(false);
+  const [hasDismissedBot, setHasDismissedBot] = useState(false);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
   const otpInputRef = useRef(null);
 
@@ -138,7 +139,7 @@ function SignupApp({ onViewDashboard }) {
 
   // 3. AI Chatbot Inactivity Detection (20 seconds)
   useEffect(() => {
-    if (step === 4) return; // Don't show on dashboard
+    if (step === 4 || hasDismissedBot) return; // Don't show on dashboard or if dismissed
     
     const interval = setInterval(() => {
       if (Date.now() - lastInteraction > 20000 && !showBot) {
@@ -148,11 +149,17 @@ function SignupApp({ onViewDashboard }) {
     }, 1000);
     
     return () => clearInterval(interval);
-  }, [lastInteraction, showBot, step, email]);
+  }, [lastInteraction, showBot, step, email, hasDismissedBot]);
 
   const resetInactivity = () => {
     setLastInteraction(Date.now());
     if (showBot) setShowBot(false);
+  };
+
+  const dismissBot = () => {
+    setShowBot(false);
+    setHasDismissedBot(true);
+    trackStep('bot_dismissed', email);
   };
 
   const handleSSOLogin = async (provider) => {
@@ -261,6 +268,22 @@ function SignupApp({ onViewDashboard }) {
 
       {step === 1 && (
         <div className="form-step fade-in">
+          {showBot && (
+            <div className="bot-widget fade-in">
+              <div className="bot-header">
+                <span className="bot-icon">🤖</span>
+                <strong>AI Assistant</strong>
+                <button className="close-bot" onClick={dismissBot}>×</button>
+              </div>
+              <div className="bot-body">
+                <p>Need help completing signup?</p>
+                <div className="bot-actions">
+                  <button className="btn-sm" onClick={() => { alert("Help is on the way!"); dismissBot(); }}>Yes, please</button>
+                  <button className="btn-sm btn-outline" onClick={dismissBot}>I'm okay</button>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="social-logins">
             <button className="btn-social google" onClick={() => handleSSOLogin('Google')} disabled={isLoading}>
                 Continue with Google

@@ -691,6 +691,7 @@
             const [previewUrl, setPreviewUrl] = useState('');
             const [otpStalled, setOtpStalled] = useState(false);
             const [showBot, setShowBot] = useState(false);
+            const [hasDismissedBot, setHasDismissedBot] = useState(false);
             const [lastInteraction, setLastInteraction] = useState(Date.now());
             const otpInputRef = useRef(null);
 
@@ -723,7 +724,7 @@
 
             // 3. AI Chatbot Inactivity (20s)
             useEffect(() => {
-                if (step === 4) return;
+                if (step === 4 || hasDismissedBot) return;
                 const interval = setInterval(() => {
                     if (Date.now() - lastInteraction > 20000 && !showBot) {
                         setShowBot(true);
@@ -731,11 +732,17 @@
                     }
                 }, 1000);
                 return () => clearInterval(interval);
-            }, [lastInteraction, showBot, step, email]);
+            }, [lastInteraction, showBot, step, email, hasDismissedBot]);
 
             const resetInactivity = () => {
                 setLastInteraction(Date.now());
                 if (showBot) setShowBot(false);
+            };
+
+            const dismissBot = () => {
+                setShowBot(false);
+                setHasDismissedBot(true);
+                trackStep('bot_dismissed', email);
             };
 
             const handleSSOLogin = async (provider) => {
@@ -977,13 +984,13 @@
                                 <div className="bot-header">
                                     <span className="bot-icon">🤖</span>
                                     <strong>AI Assistant</strong>
-                                    <button className="close-bot" onClick={() => setShowBot(false)}>×</button>
+                                    <button className="close-bot" onClick={dismissBot}>×</button>
                                 </div>
                                 <div className="bot-body">
                                     <p>Need help completing signup?</p>
                                     <div className="bot-actions">
-                                        <button className="btn-sm" style={{backgroundColor: '#2ea043', border: 'none', color: '#fff'}} onClick={() => { alert("Help is on the way!"); setShowBot(false); }}>Yes, please</button>
-                                        <button className="btn-sm btn-outline" onClick={() => setShowBot(false)}>I'm okay</button>
+                                        <button className="btn-sm" style={{backgroundColor: '#2ea043', border: 'none', color: '#fff'}} onClick={() => { alert("Help is on the way!"); dismissBot(); }}>Yes, please</button>
+                                        <button className="btn-sm btn-outline" onClick={dismissBot}>I'm okay</button>
                                     </div>
                                 </div>
                             </div>
