@@ -107,6 +107,7 @@ function SignupApp({ onViewDashboard }) {
   const [otpStalled, setOtpStalled] = useState(false);
   const [showBot, setShowBot] = useState(false);
   const [hasDismissedBot, setHasDismissedBot] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
   const otpInputRef = useRef(null);
 
@@ -173,6 +174,20 @@ function SignupApp({ onViewDashboard }) {
           case 2: return "Passwords need to be secure. We recommend at least 8 characters with a mix of letters and symbols.";
           case 3: return "OTP delayed? It usually arrives within 60 seconds. Make sure to check your 'Promotions' or 'Spam' folders!";
           default: return "How can I help you today?";
+      }
+  };
+
+  const speakHelp = () => {
+      if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); // Stop any current speech
+          const text = getHelpContent();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.onstart = () => setIsSpeaking(true);
+          utterance.onend = () => setIsSpeaking(false);
+          window.speechSynthesis.speak(utterance);
+          trackStep('voice_help_used', email);
+      } else {
+          alert("Sorry, your browser doesn't support voice synthesis.");
       }
   };
 
@@ -299,9 +314,16 @@ function SignupApp({ onViewDashboard }) {
             <div className="bot-body">
               <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
               <p>{getHelpContent()}</p>
-              <div className="bot-actions">
-                <button className="btn-sm" onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>Request human agent</button>
-                <button className="btn-sm btn-outline" onClick={dismissBot}>Got it</button>
+              <div className="bot-actions" style={{ flexDirection: 'column' }}>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                  <button className="btn-sm" style={{ flex: 1 }} onClick={speakHelp}>
+                    {isSpeaking ? '🔊 Speaking...' : '🔈 Read Aloud'}
+                  </button>
+                  <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
+                </div>
+                <button className="btn-sm btn-text" style={{ fontSize: 11, padding: 0 }} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>
+                  Request human agent
+                </button>
               </div>
             </div>
           </div>
