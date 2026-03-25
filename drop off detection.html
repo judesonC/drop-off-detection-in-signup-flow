@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Signup Flow & Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(-45deg, #0d0e15, #161a2b, #1e1332, #0f1016);
+            background-size: 400% 400%;
+            animation: bgAnimation 15s ease infinite;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 8vh;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        @keyframes bgAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Animated Background Shapes */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 20s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+
+        .shape-1 {
+            width: 50vw;
+            height: 50vw;
+            background: rgba(88, 166, 255, 0.3);
+            top: -20%;
+            left: -10%;
+            animation-duration: 25s;
+        }
+
+        .shape-2 {
+            width: 60vw;
+            height: 60vw;
+            background: rgba(94, 28, 236, 0.3);
+            bottom: -20%;
+            right: -10%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 40vw;
+            height: 40vw;
+            background: rgba(46, 160, 67, 0.2);
+            top: 30%;
+            left: 30%;
+            animation-duration: 22s;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(10vw, -10vh) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-5vw, 15vh) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+        }
+
+        .signup-container {
+            background-color: rgba(22, 27, 34, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5), 0 0 40px rgba(88, 166, 255, 0.1);
+            position: relative;
+        }
+
+        .progress-bar {
+            background-color: #30363d;
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background-color: #2ea043;
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .step-indicator {
+            font-size: 12px;
+            color: #8b949e;
+            text-align: right;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #c9d1d9;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: #010409;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+        }
+
+        input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error-text {
+            color: #f85149;
+            font-size: 12px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: #2ea043;
+            color: white;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2c974b;
+        }
+
+        .btn-primary:disabled {
+            background-color: #2ea04380;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #30363d;
+            color: #fff;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+        }
+
+        .btn-social:hover {
+            background-color: #30363d;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        .password-rules {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .password-rules li {
+            margin-bottom: 4px;
+        }
+
+        .password-rules li.valid {
+            color: #2ea043;
+        }
+
+        .btn-text {
+            background: none;
+            color: #58a6ff;
+            font-weight: 500;
+            font-size: 14px;
+            margin-top: 16px;
+            padding: 4px;
+        }
+
+        .btn-text:hover {
+            text-decoration: underline;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mock SMS Toast styles */
+        .toast-notification {
+            position: absolute;
+            top: -80px;
+            left: 20px;
+            right: 20px;
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.2s, background-color 0.2s;
+            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .toast-notification:hover {
+            background-color: #30363d;
+        }
+
+        .toast-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .toast-content strong {
+            display: block;
+            font-size: 13px;
+            color: #c9d1d9;
+            margin-bottom: 2px;
+        }
+
+        .toast-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .toast-content b {
+            color: #58a6ff;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(70px);
+            }
+        }
+
+        /* AI Chatbot Styles */
+        .bot-overlay {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+
+        .bot-bubble {
+            width: 320px;
+            background-color: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        .bot-header {
+            padding: 12px 16px;
+            background-color: rgba(55, 36, 118, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bot-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .close-bot {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .bot-body {
+            padding: 16px;
+        }
+
+        .bot-body p {
+            margin: 0 0 16px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #c9d1d9;
+        }
+
+        .bot-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .btn-sm:hover {
+            opacity: 0.8;
+        }
+
+        .help-trigger-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #372476;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .help-trigger-btn:hover {
+            transform: scale(1.1);
+            background-color: #4c35a3;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            background-color: rgba(22, 27, 34, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5), 0 0 60px rgba(55, 36, 118, 0.15);
+            position: relative;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .btn-sm {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .metrics-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background-color: rgba(13, 17, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 13px;
+            color: #8b949e;
+            font-weight: 500;
+            margin: 0 0 8px 0;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        .percent {
+            font-size: 16px;
+            color: #8b949e;
+            margin-left: 4px;
+        }
+
+        .alert-text {
+            color: #f85149;
+            font-size: 18px;
+        }
+
+        .funnel-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .funnel-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .funnel-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .funnel-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .funnel-count {
+            font-size: 13px;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dropoff-badge {
+            background-color: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .funnel-bar-bg {
+            width: 100%;
+            height: 24px;
+            background-color: #0d1117;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        .funnel-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .step-color-0 {
+            background-color: #58a6ff;
+        }
+
+        .step-color-1 {
+            background-color: #2f81f7;
+        }
+
+        .step-color-2 {
+            background-color: #1f6feb;
+        }
+
+        .step-color-3 {
+            background-color: #2ea043;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated background layers -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const simulateApiCall = (time = 1000, shouldSucceed = true) =>
+            new Promise((res, rej) => setTimeout(shouldSucceed ? res : rej, time));
+
+        // Global tracking utility calling Express backend
+        let globalSecureToken = null;
+
+        const trackStep = async (stepName, userEmail = null) => {
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (globalSecureToken) {
+                    headers['Authorization'] = `Bearer ${globalSecureToken}`;
+                }
+
+                const res = await fetch('http://localhost:5000/api/track', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        event: stepName,
+                        email: userEmail,
+                        deviceType: navigator.userAgent
+                    })
+                });
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+            } catch (err) {
+                console.warn("Backend not reachable, falling back to localStorage");
+                const current = JSON.parse(localStorage.getItem('signup_metrics')) || {
+                    started: 1042, completed_step1: 856, completed_step2: 512, completed_step3: 420
+                };
+                current[stepName] = (current[stepName] || 0) + 1;
+                localStorage.setItem('signup_metrics', JSON.stringify(current));
+            }
+        };
+
+        function Dashboard({ onBack }) {
+            const [metrics, setMetrics] = useState({
+                started: 0,
+                completed_step1: 0,
+                completed_step2: 0,
+                completed_step3: 0,
+                completed_sso: 0,
+                otp_stall_detected: 0,
+                fallback_magic_link_used: 0
+            });
+
+            useEffect(() => {
+                fetch('http://localhost:5000/api/metrics')
+                    .then(res => {
+                        if (!res.ok) throw new Error('Server error');
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.started !== undefined) setMetrics(data);
+                    })
+                    .catch(err => {
+                        console.warn("Backend unreachable, loading localStorage fallback");
+                        const data = JSON.parse(localStorage.getItem('signup_metrics')) || {
+                            started: 1042, completed_step1: 856, completed_step2: 512, completed_step3: 420, completed_sso: 150, otp_stall_detected: 85, fallback_magic_link_used: 42
+                        };
+                        setMetrics(data);
+                    });
+            }, []);
+
+            const totalCompleted = (metrics.completed_step3 || 0) + (metrics.completed_sso || 0) + (metrics.fallback_magic_link_used || 0);
+
+            const totalOauth = (metrics.completed_sso || 0) + (metrics.fallback_magic_link_used || 0);
+
+            const data = [
+                { label: 'Started (Landed on Signup)', count: metrics.started },
+                { label: 'Completed Step 1 (Email)', count: metrics.completed_step1 },
+                { label: 'Completed Step 2 (Password)', count: metrics.completed_step2 },
+                { label: 'Completed Step 3 (Verified)', count: metrics.completed_step3 }
+            ];
+
+            const max = Math.max(...data.map(d => d.count), 1);
+
+            return (
+                <div className="dashboard-container">
+                    <div className="dashboard-header">
+                        <h2>Signup Funnel Analytics</h2>
+                        <button className="btn-secondary btn-sm" onClick={onBack}>← Back to App</button>
+                    </div>
+
+                    <div className="metrics-cards" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                        <div className="card">
+                            <h3>Total Signups</h3>
+                            <p className="card-value">{totalCompleted}</p>
+                        </div>
+                        <div className="card">
+                            <h3>Smart Fallbacks</h3>
+                            <p className="card-value">{totalOauth}</p>
+                        </div>
+                        <div className="card">
+                            <h3>OTP Stalls</h3>
+                            <p className="card-value alert-text">{metrics.otp_stall_detected || 0}</p>
+                        </div>
+                        <div className="card">
+                            <h3>Completion Rate</h3>
+                            <p className="card-value">
+                                {Math.round((totalCompleted / (metrics.started || 1)) * 100)}<span className="percent">%</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="funnel-chart">
+                        {data.map((item, index) => {
+                            const percentage = Math.round((item.count / max) * 100);
+
+                            let dropOff = 0;
+                            if (index > 0) {
+                                const prevCount = data[index - 1].count;
+                                dropOff = prevCount ? Math.round(((prevCount - item.count) / prevCount) * 100) : 0;
+                            }
+
+                            return (
+                                <div key={index} className="funnel-row fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                                    <div className="funnel-label">
+                                        <span className="funnel-title">{item.label}</span>
+                                        <span className="funnel-count">
+                                            {item.count} users ({percentage}%)
+                                            {dropOff > 0 && <span className="dropoff-badge">-{dropOff}% off previous</span>}
+                                        </span>
+                                    </div>
+                                    <div className="funnel-bar-bg">
+                                        <div
+                                            className={`funnel-bar-fill step-color-${index}`}
+                                            style={{ width: `${percentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        function SignupApp({ onViewDashboard }) {
+            const [step, setStep] = useState(1);
+            const [isLoading, setIsLoading] = useState(false);
+
+            useEffect(() => {
+                // Initialize secure JWT session prior to transmitting tracking payload
+                fetch('http://localhost:5000/api/start-session')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.token) {
+                            globalSecureToken = data.token;
+                            trackStep('started');
+                        }
+                    })
+                    .catch(err => {
+                        console.error("JWT Fetch Error", err);
+                        trackStep('started');
+                    });
+            }, []);
+
+            const [email, setEmail] = useState('');
+            useEffect(() => {
+                const savedEmail = localStorage.getItem('signup_partial_email');
+                if (savedEmail) setEmail(savedEmail);
+            }, []);
+
+            const handleEmailChange = (e) => {
+                setEmail(e.target.value);
+                localStorage.setItem('signup_partial_email', e.target.value);
+            };
+
+            const [emailError, setEmailError] = useState('');
+            const validateEmail = () => {
+                if (!email) {
+                    setEmailError('Email is required');
+                    return false;
+                }
+                const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                setEmailError(isValid ? '' : 'Please enter a valid email address');
+                return isValid;
+            };
+
+            const [password, setPassword] = useState('');
+            const hasLength = password.length >= 8;
+            const hasNumber = /\d/.test(password);
+            const isPasswordValid = hasLength && hasNumber;
+
+            const [otp, setOtp] = useState('');
+            const [actualOtp, setActualOtp] = useState('');
+            const [showToast, setShowToast] = useState(false);
+            const [previewUrl, setPreviewUrl] = useState('');
+            const [otpStalled, setOtpStalled] = useState(false);
+            const [showBot, setShowBot] = useState(false);
+            const [hasDismissedBot, setHasDismissedBot] = useState(false);
+            const [isSpeaking, setIsSpeaking] = useState(false);
+            const [isListening, setIsListening] = useState(false);
+            const [lastInteraction, setLastInteraction] = useState(Date.now());
+            const otpInputRef = useRef(null);
+
+            // 1. Auto-save state to localStorage
+            useEffect(() => {
+                if (step > 0 && step < 4) {
+                    localStorage.setItem('signup_persistence', JSON.stringify({ email, step }));
+                }
+            }, [email, step]);
+
+            // 2. Initial state recovery
+            useEffect(() => {
+                const saved = localStorage.getItem('signup_persistence');
+                if (saved) {
+                    const { email: savedEmail, step: savedStep } = JSON.parse(saved);
+                    setEmail(savedEmail);
+                    setStep(savedStep);
+                }
+
+                // Initial session token fetch
+                fetch('http://localhost:5000/api/start-session')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.token) {
+                            globalSecureToken = data.token;
+                            trackStep('started');
+                        }
+                    });
+            }, []);
+
+            // 3. AI Chatbot Inactivity (20s)
+            useEffect(() => {
+                if (step === 4 || hasDismissedBot) return;
+                const interval = setInterval(() => {
+                    if (Date.now() - lastInteraction > 20000 && !showBot) {
+                        setShowBot(true);
+                        trackStep('bot_triggered', email);
+                    }
+                }, 1000);
+                return () => clearInterval(interval);
+            }, [lastInteraction, showBot, step, email, hasDismissedBot]);
+
+            const resetInactivity = () => {
+                setLastInteraction(Date.now());
+                if (showBot) setShowBot(false);
+            };
+
+            const triggerHelp = () => {
+                setShowBot(true);
+                trackStep('help_requested', email);
+            };
+
+            const dismissBot = () => {
+                setShowBot(false);
+                setHasDismissedBot(true);
+                trackStep('bot_dismissed', email);
+            };
+
+            const getHelpContent = () => {
+                switch (step) {
+                    case 1: return "Having trouble with your email? Make sure it follows the standard format (e.g., name@domain.com).";
+                    case 2: return "Passwords need to be secure. We recommend at least 8 characters with a mix of letters and symbols.";
+                    case 3: return "OTP delayed? It usually arrives within 60 seconds. Make sure to check your 'Promotions' or 'Spam' folders!";
+                    default: return "How can I help you today?";
+                }
+            };
+
+            const speakHelp = () => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const text = getHelpContent();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.onstart = () => setIsSpeaking(true);
+                    utterance.onend = () => setIsSpeaking(false);
+                    window.speechSynthesis.speak(utterance);
+                    trackStep('voice_help_used', email);
+                } else {
+                    alert("Voice synthesis not supported.");
+                }
+            };
+
+            const startVoiceFill = () => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    alert("Speech recognition not supported.");
+                    return;
+                }
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                const promptText = step === 1 ? "Please say your email address." : "Please say your password.";
+                const utterance = new SpeechSynthesisUtterance(promptText);
+                utterance.onend = () => {
+                    setIsListening(true);
+                    recognition.start();
+                };
+                window.speechSynthesis.speak(utterance);
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript.toLowerCase().replace(/\s/g, '');
+                    if (step === 1) setEmail(transcript);
+                    if (step === 2) setPassword(transcript);
+                    setIsListening(false);
+                    trackStep('voice_input_captured', email);
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(`I heard ${transcript}`));
+                };
+                recognition.onerror = () => setIsListening(false);
+            };
+
+            const handleSSOLogin = async (provider) => {
+                resetInactivity();
+                setIsLoading(true);
+                try {
+                    await simulateApiCall(1500);
+                    trackStep('completed_sso', email);
+                    alert(`Successfully authenticated with ${provider}!`);
+                    onViewDashboard();
+                } catch (e) {
+                    console.error(`${provider} SSO Error`, e);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleNextStep1 = async () => {
+                if (!validateEmail()) return;
+                setIsLoading(true);
+                try {
+                    await simulateApiCall(500);
+                    trackStep('completed_step1', email);
+                    setStep(2);
+                } catch (e) {
+                    setEmailError("Network error. Please try again.");
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleNextStep2 = async () => {
+                if (!isPasswordValid) return;
+                setIsLoading(true);
+                try {
+                    await simulateApiCall(800);
+                    trackStep('completed_step2', email);
+                    setStep(3);
+
+                    const code = Math.floor(100000 + Math.random() * 900000).toString();
+                    setActualOtp(code);
+
+                    try {
+                        const mailRes = await fetch('http://localhost:5000/api/send-otp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, otp: code })
+                        });
+                        if (mailRes.ok) {
+                            const data = await mailRes.json();
+                            if (data.previewUrl) {
+                                setPreviewUrl(data.previewUrl);
+                                setShowToast(true);
+                            }
+                        } else {
+                            setTimeout(() => setShowToast(true), 1500);
+                        }
+                    } catch (e) {
+                        console.warn("Mail server failed", e);
+                        setTimeout(() => setShowToast(true), 1500);
+                    }
+
+                    setTimeout(() => otpInputRef.current?.focus(), 100);
+                } catch (e) {
+                    console.error("Failed to send OTP", e);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleFinalSignup = async () => {
+                if (otp.length < 6) return;
+                setIsLoading(true);
+                try {
+                    await simulateApiCall(1000);
+                    if (otp !== actualOtp) {
+                        alert("Invalid OTP! Try the code from the notification.");
+                        setIsLoading(false);
+                        return;
+                    }
+
+                    trackStep('completed_step3', email);
+                    localStorage.removeItem('signup_partial_email');
+                    setShowToast(false);
+                    alert("Signup Complete! Welcome.");
+                    onViewDashboard();
+                } catch (e) {
+                    console.error("OTP Invalid", e);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            return (
+                <>
+                    <div className="signup-container">
+                        <div className="progress-bar" style={{ marginTop: 24 }}>
+                            <div className="progress-fill" style={{ width: `${(step / 3) * 100}%` }}></div>
+                        </div>
+                        <p className="step-indicator">Step {step} of 3</p>
+
+                        <h2>Create your account</h2>
+
+                        {step === 1 && (
+                            <div className="form-step fade-in">
+                                <div className="social-logins">
+                                    <button className="btn-social google" onClick={() => handleSSOLogin('Google')} disabled={isLoading}>
+                                        Continue with Google
+                                    </button>
+                                    <button className="btn-social apple" onClick={() => handleSSOLogin('Apple')} disabled={isLoading}>
+                                        Continue with Apple
+                                    </button>
+                                </div>
+
+                                <div className="divider"><span>or use email</span></div>
+
+                                <label>Email Address</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={handleEmailChange}
+                                    onBlur={validateEmail}
+                                    placeholder="you@example.com"
+                                    disabled={isLoading}
+                                />
+                                {emailError && <span className="error-text">{emailError}</span>}
+
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleNextStep1}
+                                    disabled={isLoading || !email}
+                                >
+                                    {isLoading ? 'Checking...' : 'Continue'}
+                                </button>
+                            </div>
+                        )}
+
+                        {step === 2 && (
+                            <div className="form-step fade-in">
+                                <label>Create a Password</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    disabled={isLoading}
+                                />
+
+                                <ul className="password-rules">
+                                    <li className={hasLength ? 'valid' : ''}>
+                                        {hasLength ? '✅' : '❌'} At least 8 characters
+                                    </li>
+                                    <li className={hasNumber ? 'valid' : ''}>
+                                        {hasNumber ? '✅' : '❌'} Contains a number
+                                    </li>
+                                </ul>
+
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleNextStep2}
+                                    disabled={isLoading || !isPasswordValid}
+                                >
+                                    {isLoading ? 'Sending Code...' : 'Create Account'}
+                                </button>
+                                <button className="btn-secondary" onClick={() => setStep(1)}>Back</button>
+                            </div>
+                        )}
+
+                        {step === 3 && (
+                            <div className="form-step fade-in">
+                                <label>Enter verification code sent to {email}</label>
+                                <input
+                                    ref={otpInputRef}
+                                    type="text"
+                                    value={otp}
+                                    autoComplete="one-time-code"
+                                    inputMode="numeric"
+                                    maxLength={6}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    placeholder="000000"
+                                    disabled={isLoading}
+                                />
+
+                                <button
+                                    className="btn-primary"
+                                    onClick={handleFinalSignup}
+                                    disabled={isLoading || otp.length < 6}
+                                >
+                                    {isLoading ? 'Verifying...' : 'Verify & Complete'}
+                                </button>
+
+                                {otpStalled ? (
+                                    <div className="fallback-wedge fade-in" style={{ marginTop: 24, padding: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
+                                        <p style={{ fontSize: 13, color: '#c9d1d9', textAlign: 'center', marginBottom: 16, fontWeight: 500 }}>
+                                            ⏳ SMS taking too long? Skip the wait:
+                                        </p>
+                                        <button className="btn-secondary" style={{ marginBottom: 12, width: '100%', borderColor: '#58a6ff', color: '#58a6ff' }} onClick={() => {
+                                            trackStep('fallback_magic_link_used', email);
+                                            alert('Magic Link securely dispatched to ' + email + '!');
+                                            onViewDashboard();
+                                        }}>
+                                            ✉️ Send Magic Link to Email
+                                        </button>
+                                        <button className="btn-social google" style={{ marginBottom: 0 }} onClick={() => handleSSOLogin('Google')}>
+                                            Continue with Google instead
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button className="btn-text">Didn't receive it? Resend in 30s</button>
+                                )}
+                            </div>
+                        )}
+
+                        {showToast && (
+                            <div className="toast-notification fade-in">
+                                <div className="toast-icon">📧</div>
+                                <div className="toast-content" style={{ width: '100%' }}>
+                                    <strong>Email Sent!</strong>
+                                    {previewUrl ? (
+                                        <>
+                                            <p>We've emailed your code to <b>{email}</b>.</p>
+                                            <a href={previewUrl} target="_blank" rel="noreferrer" style={{ color: '#58a6ff', fontSize: 13, marginTop: 4, display: 'inline-block' }}>
+                                                Click here to open email (Ethereal demo)
+                                            </a>
+                                        </>
+                                    ) : (
+                                        <p onClick={() => { setOtp(actualOtp); setShowToast(false); }} style={{ cursor: 'pointer' }}>
+                                            Your verification code is: <b>{actualOtp}</b> (Tap to autofill)
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* AI Chatbot Intervention (Moved outside container) */}
+                    {step < 4 && !showBot && (
+                        <button className="help-trigger-btn fade-in" onClick={triggerHelp} title="Need help?">
+                            <span>❓</span>
+                        </button>
+                    )}
+
+                    {showBot && (
+                        <div className="bot-overlay fade-in">
+                            <div className="bot-bubble">
+                                <div className="bot-header">
+                                    <span className="bot-icon">🤖</span>
+                                    <strong>AI Assistant</strong>
+                                    <button className="close-bot" onClick={dismissBot}>×</button>
+                                </div>
+                                <div className="bot-body">
+                                    <p><strong>{step < 4 ? "Step " + step + " Help" : "Assistant"}</strong></p>
+                                    <p>{getHelpContent()}</p>
+                                    <div className="bot-actions" style={{ flexDirection: 'column', display: 'flex' }}>
+                                        <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                                            <button className="btn-sm" style={{ flex: 1, backgroundColor: isListening ? '#d73a49' : '#372476', border: 'none', color: '#fff' }} onClick={startVoiceFill}>
+                                                {isListening ? '🎤 Listening...' : '🎙️ Voice Fill Form'}
+                                            </button>
+                                            <button className="btn-sm" style={{ flex: 1, backgroundColor: '#372476', border: 'none', color: '#fff' }} onClick={speakHelp}>
+                                                {isSpeaking ? '🔊 Speaking...' : '🔈 Read Aloud'}
+                                            </button>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: 8, marginBottom: 8, width: '100%' }}>
+                                            <button className="btn-sm btn-outline" style={{ flex: 1 }} onClick={dismissBot}>Got it</button>
+                                        </div>
+                                        <button className="btn-sm" style={{ background: 'none', border: 'none', color: '#8b949e', fontSize: 11, padding: 0 }} onClick={() => { alert("A support ticket has been simulated!"); dismissBot(); }}>
+                                            Request human agent
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        function RootApp() {
+            const [view, setView] = useState('signup');
+            if (view === 'dashboard') {
+                return <Dashboard onBack={() => setView('signup')} />;
+            }
+            return <SignupApp onViewDashboard={() => setView('dashboard')} />;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<RootApp />);
+    </script>
+</body>
+
+</html>
